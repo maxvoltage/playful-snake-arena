@@ -3,6 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "_documentation": {
+    "NOTE": "This section explains the project dependencies for backend developers. It is ignored by npm.",
+    "scripts": {
+      "dev": "Starts the dev server (Vite). Use for coding.",
+      "build": "Builds for production (dist folder).",
+      "lint": "Runs code quality checks (ESLint).",
+      "preview": "Previews the production build locally."
+    },
+    "key_dependencies": {
+      "react": "Core UI library.",
+      "vite": "Fast build tool and dev server.",
+      "@tanstack/react-query": "Handles data fetching/caching (state management).",
+      "zod": "Schema validation (for forms/API).",
+      "tailwindcss": "Utility-first CSS framework for styling.",
+      "radix-ui": "Unstyled accessible UI components (building blocks for shadcn/ui)."
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

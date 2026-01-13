@@ -1,0 +1,245 @@
+openapi: 3.0.0
+info:
+  title: Playful Snake Arena API
+  version: 1.0.0
+  description: API for the Snake Game, including Authentication, Leaderboard, and Live Game Spectating.
+
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        createdAt:
+          type: string
+          format: date-time
+    
+    LeaderboardEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        rank:
+          type: integer
+        username:
+          type: string
+        score:
+          type: integer
+        mode:
+          type: string
+          enum: [walls, passthrough]
+        date:
+          type: string
+          format: date
+
+    LiveGame:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        score:
+          type: integer
+        mode:
+          type: string
+          enum: [walls, passthrough]
+        spectators:
+          type: integer
+        startedAt:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    # Assuming Bearer/interaction for now, or just cookie based. 
+    # For now, we will leave it open or implied.
+    pass:
+       type: http
+       scheme: bearer
+
+paths:
+  # Auth
+  /auth/login:
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+
+  /auth/signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          description: Username already exists
+
+  /auth/logout:
+    post:
+      summary: Logout the current user
+      responses:
+        '200':
+          description: Logged out successfully
+
+  /auth/me:
+    get:
+      summary: Get current logged in user
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+
+  # Leaderboard
+  /leaderboard:
+    get:
+      summary: Get leaderboard entries
+      parameters:
+        - in: query
+          name: mode
+          schema:
+            type: string
+            enum: [walls, passthrough]
+          description: Filter by game mode
+      responses:
+        '200':
+          description: List of leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaderboardEntry'
+
+    post:
+      summary: Submit a new score associated with the current user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score, mode]
+              properties:
+                score:
+                  type: integer
+                mode:
+                  type: string
+                  enum: [walls, passthrough]
+      responses:
+        '201':
+          description: Score submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardEntry'
+
+  # Live Games
+  /live-games:
+    get:
+      summary: List all currently active games
+      responses:
+        '200':
+          description: Active games
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LiveGame'
+  
+  /live-games/{gameId}:
+    get:
+      summary: Get details of a specific live game
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Game details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveGame'
+        '404':
+          description: Game not found
+
+  /live-games/{gameId}/spectate:
+    post:
+      summary: Join as a spectator (increment spectator count)
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Joined successfully
+
+    delete:
+      summary: Leave spectators (decrement spectator count)
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Left successfully
