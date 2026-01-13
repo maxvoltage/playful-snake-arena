@@ -1,8 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
-from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLEnum, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLEnum
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -17,7 +17,7 @@ class DBUser(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     password = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
 class DBLeaderboardEntry(Base):
     __tablename__ = "leaderboard"
@@ -28,24 +28,22 @@ class DBLeaderboardEntry(Base):
     date = Column(String)
 
 class User(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: str
     username: str
     email: EmailStr
-    createdAt: datetime
-
-    class Config:
-        from_attributes = True
+    createdAt: datetime = Field(validation_alias="created_at")
 
 class LeaderboardEntry(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     rank: int
     username: str
     score: int
     mode: GameMode
     date: str
-
-    class Config:
-        from_attributes = True
 
 class LiveGame(BaseModel):
     id: str

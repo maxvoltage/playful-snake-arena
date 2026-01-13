@@ -34,22 +34,27 @@ Once the server is running, you can access the interactive documentation at:
 
 ## Testing
 
-### Unit Tests
-Run the unit test suite:
+### Running Tests
+The project has two distinct test suites:
+
+#### 1. Internal Unit Tests (Fast)
+These test the API logic directly using `httpx` and do **not** require the server to be running.
 ```bash
-uv run pytest
+uv run pytest -m "not integration"
 ```
 
-### API Verification Script
-Verify the running server end-to-end:
+#### 2. Integration Tests (Requires Server)
+These verify the actual running server. They will automatically skip if the server is not reachable on port 3000.
 ```bash
-uv run python verify_api.py
+uv run pytest -m "integration"
 ```
+
 
 ## Project Structure
 - `main.py`: Entry point and FastAPI application.
-- `models.py`: Pydantic schemas for requests and responses.
-- `database.py`: In-memory mock database implementation.
-- `test_main.py`: Pytest suite for API endpoints.
-- `verify_api.py`: Integration test script.
+- `models.py`: Pydantic and SQLAlchemy models.
+- `database.py`: SQLAlchemy database configuration.
+- `tests/`:
+  - `test_main.py`: Unit tests using `httpx`.
+  - `test_verify_api.py`: End-to-end verification against a running server.
 - `openapi.yaml`: Project-wide API specification (located in root).

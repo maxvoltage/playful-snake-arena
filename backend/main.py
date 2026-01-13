@@ -2,15 +2,15 @@ from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, UTC
 import uuid
 
 from models import (
     User, LeaderboardEntry, LiveGame, GameMode, 
-    LoginRequest, SignupRequest, ScoreSubmission,
-    DBUser, DBLeaderboardEntry, Base
+    LoginRequest, SignupRequest, ScoreSubmission
 )
 from database import get_db, init_db
+import crud
 
 app = FastAPI(title="Playful Snake Arena API")
 
@@ -28,8 +28,8 @@ app.add_middleware(
 
 # In-memory storage for Live Games (since they are transient)
 mock_live_games: List[LiveGame] = [
-    LiveGame(id="live1", username="NeonViper", score=340, mode=GameMode.WALLS, spectators=12, startedAt=datetime.now()),
-    LiveGame(id="live2", username="PixelHunter", score=180, mode=GameMode.PASSTHROUGH, spectators=8, startedAt=datetime.now()),
+    LiveGame(id="live1", username="NeonViper", score=340, mode=GameMode.WALLS, spectators=12, startedAt=datetime.now(UTC)),
+    LiveGame(id="live2", username="PixelHunter", score=180, mode=GameMode.PASSTHROUGH, spectators=8, startedAt=datetime.now(UTC)),
 ]
 
 # Simple in-memory session management for simulation
@@ -38,7 +38,7 @@ auth_sessions = {}
 
 @app.post("/auth/login", response_model=User)
 async def login(request: LoginRequest, db: Session = Depends(get_db)):
-    db_user = db.query(DBUser).filter(DBUser.username == request.username).first()
+    db_user = crud.get_user_by_username(db, request.username)
     if not db_user or db_user.password != request.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -46,44 +46,23 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
         )
     
     # Simulate a session
-    session_id = str(uuid.uuid4())
     auth_sessions["current"] = db_user # Simple global for mock compatibility
     
-    return User(
-        id=db_user.id,
-        username=db_user.username,
-        email=db_user.email,
-        createdAt=db_user.created_at
-    )
+    return User.model_validate(db_user)
 
 @app.post("/auth/signup", response_model=User, status_code=status.HTTP_201_CREATED)
 async def signup(request: SignupRequest, db: Session = Depends(get_db)):
-    db_user = db.query(DBUser).filter(DBUser.username == request.username).first()
+    db_user = crud.get_user_by_username(db, request.username)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username already exists"
         )
     
-    new_user = DBUser(
-        id=str(uuid.uuid4()),
-        username=request.username,
-        email=request.email,
-        password=request.password,
-        created_at=datetime.utcnow()
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
+    new_user = crud.create_user(db, request)
     auth_sessions["current"] = new_user
     
-    return User(
-        id=new_user.id,
-        username=new_user.username,
-        email=new_user.email,
-        createdAt=new_user.created_at
-    )
+    return User.model_validate(new_user)
 
 @app.post("/auth/logout")
 async def logout():
@@ -98,20 +77,11 @@ async def get_me():
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated"
         )
-    return User(
-        id=user.id,
-        username=user.username,
-        email=user.email,
-        createdAt=user.created_at
-    )
+    return User.model_validate(user)
 
 @app.get("/leaderboard", response_model=List[LeaderboardEntry])
 async def get_leaderboard(mode: Optional[GameMode] = None, db: Session = Depends(get_db)):
-    query = db.query(DBLeaderboardEntry)
-    if mode:
-        query = query.filter(DBLeaderboardEntry.mode == mode)
-    
-    entries = query.order_by(DBLeaderboardEntry.score.desc()).all()
+    entries = crud.get_leaderboard_entries(db, mode)
     
     # Map to Pydantic with ranks
     result = []
@@ -135,19 +105,8 @@ async def submit_score(request: ScoreSubmission, db: Session = Depends(get_db)):
             detail="Must be logged in to submit score"
         )
     
-    new_entry = DBLeaderboardEntry(
-        id=str(uuid.uuid4()),
-        username=user.username,
-        score=request.score,
-        mode=request.mode,
-        date=datetime.now().strftime("%Y-%m-%d")
-    )
-    db.add(new_entry)
-    db.commit()
-    db.refresh(new_entry)
-    
-    # Calculate rank for return
-    rank = db.query(DBLeaderboardEntry).filter(DBLeaderboardEntry.score > new_entry.score).count() + 1
+    new_entry = crud.create_leaderboard_entry(db, user.username, request.score, request.mode)
+    rank = crud.get_user_rank(db, new_entry.score)
     
     return LeaderboardEntry(
         id=new_entry.id,

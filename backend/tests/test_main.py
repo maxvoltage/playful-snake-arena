@@ -20,19 +20,21 @@ async def test_root():
 async def test_auth_flow():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # Signup
+        import uuid
+        unique_user = f"user_{uuid.uuid4().hex[:8]}"
         signup_data = {
-            "username": "newuser",
-            "email": "new@example.com",
+            "username": unique_user,
+            "email": f"{unique_user}@example.com",
             "password": "password123"
         }
         response = await ac.post("/auth/signup", json=signup_data)
         assert response.status_code == 201
-        assert response.json()["username"] == "newuser"
+        assert response.json()["username"] == unique_user
 
         # Me (should be authenticated)
         response = await ac.get("/auth/me")
         assert response.status_code == 200
-        assert response.json()["username"] == "newuser"
+        assert response.json()["username"] == unique_user
 
         # Logout
         response = await ac.post("/auth/logout")
