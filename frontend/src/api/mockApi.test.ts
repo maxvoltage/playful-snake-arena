@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { authApi, leaderboardApi, liveGamesApi } from './mockApi';
+import { authApi, leaderboardApi, liveGamesApi, _resetMockApi } from './mockApi';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -17,6 +17,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 describe('authApi', () => {
   beforeEach(() => {
     localStorageMock.clear();
+    _resetMockApi();
   });
 
   describe('login', () => {
@@ -102,6 +103,7 @@ describe('leaderboardApi', () => {
   describe('submitScore', () => {
     beforeEach(() => {
       localStorageMock.clear();
+      _resetMockApi();
     });
 
     it('should fail when not logged in', async () => {
@@ -147,9 +149,9 @@ describe('liveGamesApi', () => {
     it('should increment spectators when joining', async () => {
       const before = await liveGamesApi.getGameById('live1');
       const initialCount = before.data!.spectators;
-      
+
       await liveGamesApi.joinSpectators('live1');
-      
+
       const after = await liveGamesApi.getGameById('live1');
       expect(after.data!.spectators).toBe(initialCount + 1);
     });
@@ -157,9 +159,9 @@ describe('liveGamesApi', () => {
     it('should decrement spectators when leaving', async () => {
       const before = await liveGamesApi.getGameById('live1');
       const initialCount = before.data!.spectators;
-      
+
       await liveGamesApi.leaveSpectators('live1');
-      
+
       const after = await liveGamesApi.getGameById('live1');
       expect(after.data!.spectators).toBe(initialCount - 1);
     });

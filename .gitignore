@@ -1,2 +1,36 @@
-# Documentation symlinks
-docs/
+# --- Frontend Section ---
+# Logs
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# Dependencies and build
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/*.local
+
+# Editor directories and files
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+frontend/.idea
+frontend/*.suo
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
+
+# --- Backend Section ---
+backend/**/__pycache__/
+backend/.venv/
+backend/**/.pytest_cache/
+backend/**/*.pyc
+backend/.env
+backend/uv.lock
+
+# --- General ---
+.DS_Store

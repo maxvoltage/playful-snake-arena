@@ -1,16 +1,21 @@
 import { User, LeaderboardEntry, LiveGame, GameMode } from '@/types/game';
 
 // Simulated delay to mimic network requests
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => {
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+    return Promise.resolve();
+  }
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 // Mock data storage
 let currentUser: User | null = null;
 let mockUsers: Map<string, { user: User; password: string }> = new Map([
-  ['player1', { 
+  ['player1', {
     user: { id: '1', username: 'player1', email: 'player1@snake.io', createdAt: '2024-01-01' },
     password: 'password123'
   }],
-  ['NeonViper', { 
+  ['NeonViper', {
     user: { id: '2', username: 'NeonViper', email: 'neon@snake.io', createdAt: '2024-01-15' },
     password: 'password123'
   }],
@@ -47,7 +52,7 @@ interface ApiResponse<T> {
 export const authApi = {
   async login(username: string, password: string): Promise<ApiResponse<User>> {
     await delay(500);
-    
+
     const userData = mockUsers.get(username);
     if (!userData) {
       return { success: false, error: 'User not found' };
@@ -55,7 +60,7 @@ export const authApi = {
     if (userData.password !== password) {
       return { success: false, error: 'Invalid password' };
     }
-    
+
     currentUser = userData.user;
     localStorage.setItem('snake_user', JSON.stringify(currentUser));
     return { success: true, data: currentUser };
@@ -63,18 +68,18 @@ export const authApi = {
 
   async signup(username: string, email: string, password: string): Promise<ApiResponse<User>> {
     await delay(500);
-    
+
     if (mockUsers.has(username)) {
       return { success: false, error: 'Username already exists' };
     }
-    
+
     const newUser: User = {
       id: Math.random().toString(36).substr(2, 9),
       username,
       email,
       createdAt: new Date().toISOString(),
     };
-    
+
     mockUsers.set(username, { user: newUser, password });
     currentUser = newUser;
     localStorage.setItem('snake_user', JSON.stringify(currentUser));
@@ -112,7 +117,7 @@ export const leaderboardApi = {
 
   async submitScore(score: number, mode: GameMode): Promise<ApiResponse<LeaderboardEntry>> {
     await delay(300);
-    
+
     if (!currentUser) {
       return { success: false, error: 'Must be logged in to submit score' };
     }
@@ -167,4 +172,8 @@ export const api = {
   auth: authApi,
   leaderboard: leaderboardApi,
   liveGames: liveGamesApi,
+};
+
+export const _resetMockApi = () => {
+  currentUser = null;
 };
