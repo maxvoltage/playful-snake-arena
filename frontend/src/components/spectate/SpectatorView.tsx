@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { GameBoard } from '@/components/game/GameBoard';
 import { LiveGame, GameState, Direction } from '@/types/game';
-import { api } from '@/api/mockApi';
+import { api } from '@/api/api';
 import { createInitialState, moveSnake, changeDirection, startGame } from '@/lib/gameLogic';
 import { ArrowLeft, Users, Radio, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,20 +20,20 @@ export function SpectatorView() {
     const fetchGame = async () => {
       if (!gameId) return;
       setIsLoading(true);
-      
+
       const result = await api.liveGames.getGameById(gameId);
       if (result.success && result.data) {
         setLiveGame(result.data);
         // Initialize a simulated game state
         const initialState = createInitialState(result.data.mode, 20);
         setGameState(startGame({ ...initialState, score: result.data.score }));
-        
+
         // Join as spectator
         await api.liveGames.joinSpectators(gameId);
       }
       setIsLoading(false);
     };
-    
+
     fetchGame();
 
     return () => {
@@ -154,8 +154,8 @@ export function SpectatorView() {
               </p>
               <span className={cn(
                 "font-mono text-sm px-3 py-1 rounded border inline-block",
-                liveGame.mode === 'walls' 
-                  ? "border-neon-cyan text-neon-cyan" 
+                liveGame.mode === 'walls'
+                  ? "border-neon-cyan text-neon-cyan"
                   : "border-neon-pink text-neon-pink"
               )}>
                 {liveGame.mode === 'walls' ? 'WALLS' : 'PASS-THROUGH'}

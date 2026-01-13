@@ -3,7 +3,7 @@ import { GameBoard } from '@/components/game/GameBoard';
 import { GameControls } from '@/components/game/GameControls';
 import { useGame } from '@/hooks/useGame';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { api } from '@/api/mockApi';
+import { api } from '@/api/api';
 import { useEffect } from 'react';
 
 const Index = () => {
@@ -33,9 +33,9 @@ const Index = () => {
         {/* Game Layout */}
         <div className="grid lg:grid-cols-[1fr,280px] gap-8 items-start">
           {/* Game Board */}
-          <GameBoard 
-            gameState={gameState} 
-            className="w-full max-w-[500px] mx-auto lg:mx-0" 
+          <GameBoard
+            gameState={gameState}
+            className="w-full max-w-[500px] mx-auto lg:mx-0"
           />
 
           {/* Controls Panel */}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { User, AuthState } from '@/types/game';
-import { api } from '@/api/mockApi';
+import { api } from '@/api/api';
 
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { LeaderboardEntry, GameMode } from '@/types/game';
-import { api } from '@/api/mockApi';
+import { api } from '@/api/api';
 import { Trophy, Medal, Award, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -98,7 +98,7 @@ export function LeaderboardTable() {
               </thead>
               <tbody>
                 {entries.map((entry, index) => (
-                  <tr 
+                  <tr
                     key={entry.id}
                     className={cn(
                       "border-b border-border/50 transition-colors hover:bg-muted/30",
@@ -128,8 +128,8 @@ export function LeaderboardTable() {
                     <td className="py-4 text-right hidden sm:table-cell">
                       <span className={cn(
                         "font-mono text-xs px-2 py-1 rounded border",
-                        entry.mode === 'walls' 
-                          ? "border-neon-cyan text-neon-cyan" 
+                        entry.mode === 'walls'
+                          ? "border-neon-cyan text-neon-cyan"
                           : "border-neon-pink text-neon-pink"
                       )}>
                         {entry.mode === 'walls' ? 'WALLS' : 'PASS'}

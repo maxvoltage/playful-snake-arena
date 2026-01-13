@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LiveGame } from '@/types/game';
-import { api } from '@/api/mockApi';
+import { api } from '@/api/api';
 import { Eye, Users, Loader2, Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -68,8 +68,8 @@ export function LiveGamesList() {
                     <h3 className="font-mono text-lg text-foreground">{game.username}</h3>
                     <p className={cn(
                       "font-mono text-xs px-2 py-0.5 rounded border inline-block mt-1",
-                      game.mode === 'walls' 
-                        ? "border-neon-cyan text-neon-cyan" 
+                      game.mode === 'walls'
+                        ? "border-neon-cyan text-neon-cyan"
                         : "border-neon-pink text-neon-pink"
                     )}>
                       {game.mode === 'walls' ? 'WALLS' : 'PASS-THROUGH'}
