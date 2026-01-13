@@ -36,6 +36,10 @@ def test_auth():
     r = requests.post(f"{BASE_URL}/auth/logout")
     log_test("Logout", r.status_code == 200, f"Status: {r.status_code}")
 
+    # Log back in for subsequent tests
+    r = requests.post(f"{BASE_URL}/auth/login", json=login_data)
+    log_test("Re-Login", r.status_code == 200, f"Status: {r.status_code}")
+
 def test_leaderboard():
     print("\n--- Testing Leaderboard ---")
     

@@ -7,5 +7,5 @@
     # Run Python files
     uv run python <PYTHON-FILE>
 
-    #commit with suitable message. The message should be bullet point style, simple, and concise. Confirm the message with the user.
+    #commit with suitable message. The message should be bullet point style, simple, and concise.
     git commit -m "<MESSAGE>"
