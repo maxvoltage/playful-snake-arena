@@ -31,6 +31,7 @@ backend/**/.pytest_cache/
 backend/**/*.pyc
 backend/.env
 backend/uv.lock
+backend/*.db*
 
 # --- General ---
 .DS_Store
