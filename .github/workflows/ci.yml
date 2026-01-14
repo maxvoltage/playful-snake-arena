@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      # We don't need a DB service here because we switched to SQLite
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          uv sync
+
+      - name: Run unit tests
+        run: |
+          cd backend
+          uv run pytest tests/test_main.py
+
+      - name: Build and run Docker container
+        run: |
+          docker build -t snake-app .
+          docker run -d --name snake-app -p 80:80 snake-app
+
+      - name: Wait for server to be ready
+        run: |
+          # Poll the health endpoint until it responds with 200
+          timeout 60s bash -c 'until curl -s http://localhost/api | grep "Welcome"; do sleep 2; done'
+
+      - name: Run integration tests
+        run: |
+          cd backend
+          uv run pytest tests/test_verify_api.py
+
+      - name: Check container logs on failure
+        if: failure()
+        run: docker logs snake-app
