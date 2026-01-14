@@ -11,9 +11,9 @@ RUN npm run build
 FROM python:3.13-slim
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /app/backend
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/backend
 
 # Install system dependencies + Nginx + Supervisor
 RUN apt-get update && apt-get install -y \
@@ -41,8 +41,7 @@ COPY backend/ .
 COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 
 # Copy custom Nginx configuration
-COPY frontend/nginx.conf /etc/nginx/sites-available/default
-RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy supervisor configuration
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf

@@ -11,7 +11,7 @@ BASE_URL = "http://localhost/api"
 def api_session():
     """Check if server is up and provide a unique user context."""
     try:
-        requests.get(BASE_URL, timeout=2)
+        requests.get(BASE_URL)
     except requests.exceptions.ConnectionError:
         pytest.skip(f"Backend server not running at {BASE_URL}")
     
