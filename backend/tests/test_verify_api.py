@@ -5,7 +5,7 @@ import uuid
 # Mark all tests in this file as integration tests
 pytestmark = pytest.mark.integration
 
-BASE_URL = "http://localhost:3000"
+BASE_URL = "http://localhost/api"
 
 @pytest.fixture(scope="module")
 def api_session():

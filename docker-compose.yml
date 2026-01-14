@@ -13,29 +13,17 @@ services:
     networks:
       - snake-network
 
-  backend:
+  app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: snake-backend
+    container_name: snake-app
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-snake_user}:${POSTGRES_PASSWORD:-snake_password}@db:5432/${POSTGRES_DB:-snake_arena}
     depends_on:
       - db
     ports:
-      - "3000:3000"
-    networks:
-      - snake-network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: snake-frontend
-    ports:
       - "80:80"
-    depends_on:
-      - backend
     networks:
       - snake-network
 
