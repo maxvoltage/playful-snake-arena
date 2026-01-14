@@ -8,6 +8,7 @@ This is the FastAPI backend for the Snake Arena game. It provides APIs for authe
 - **Package Manager**: [uv](https://docs.astral.sh/uv/)
 - **Validation**: [Pydantic v2](https://docs.pydantic.dev/latest/)
 - **Testing**: [pytest](https://docs.pytest.org/en/stable/)
+- **Database**: PostgreSQL (Production/Docker) or SQLite (Local default)
 
 ## Getting Started
 
