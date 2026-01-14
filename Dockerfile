@@ -15,11 +15,12 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /app/backend
 
-# Install system dependencies + Nginx
+# Install system dependencies + Nginx + Supervisor
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     nginx \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -40,14 +41,14 @@ COPY backend/ .
 COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 
 # Copy custom Nginx configuration
-# We'll need a modified nginx.conf for this unified setup
 COPY frontend/nginx.conf /etc/nginx/sites-available/default
 RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Copy supervisor configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose port (Nginx)
 EXPOSE 80
 
-# Start both services
-# We use a simple script or a combination to run both
-# Note: In a real prod environment, you might use 'supervisord'
-CMD ["sh", "-c", "uv run uvicorn main:app --host 0.0.0.0 --port 3000 & nginx -g 'daemon off;'"]
+# Start supervisor to manage both processes
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
