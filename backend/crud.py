@@ -3,6 +3,7 @@ from sqlalchemy import desc
 import uuid
 from datetime import datetime, UTC
 from models import DBUser, DBLeaderboardEntry, GameMode, SignupRequest
+from security import get_password_hash
 
 def get_user_by_username(db: Session, username: str):
     return db.query(DBUser).filter(DBUser.username == username).first()
@@ -15,7 +16,7 @@ def create_user(db: Session, request: SignupRequest):
         id=str(uuid.uuid4()),
         username=request.username,
         email=request.email,
-        password=request.password,
+        password=get_password_hash(request.password),
         created_at=datetime.now(UTC)
     )
     db.add(new_user)

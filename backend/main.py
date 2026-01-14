@@ -11,6 +11,7 @@ from models import (
 )
 from database import get_db, init_db
 import crud
+from security import verify_password
 
 app = FastAPI(title="Playful Snake Arena API")
 
@@ -39,7 +40,7 @@ auth_sessions = {}
 @app.post("/auth/login", response_model=User)
 async def login(request: LoginRequest, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_username(db, request.username)
-    if not db_user or db_user.password != request.password:
+    if not db_user or not verify_password(request.password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"

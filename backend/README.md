@@ -54,6 +54,8 @@ uv run pytest -m "integration"
 - `main.py`: Entry point and FastAPI application.
 - `models.py`: Pydantic and SQLAlchemy models.
 - `database.py`: SQLAlchemy database configuration.
+- `crud.py`: Database abstraction layer (CRUD operations).
+- `security.py`: Password hashing and verification utilities.
 - `tests/`:
   - `test_main.py`: Unit tests using `httpx`.
   - `test_verify_api.py`: End-to-end verification against a running server.
