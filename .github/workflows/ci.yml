@@ -19,7 +19,10 @@ jobs:
           python-version: "3.13"
 
       - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
+          cache-suffix: "backend"
 
       - name: Install dependencies
         run: |
@@ -31,16 +34,26 @@ jobs:
           cd backend
           uv run pytest tests/test_main.py
 
-      - name: Build and run Docker container
-        run: |
-          docker build -t snake-app .
-          docker run -d --name snake-app -p 80:80 snake-app
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: snake-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Docker container
+        run: docker run -d --name snake-app -p 80:80 snake-app:latest
 
       - name: Wait for server to be ready
         run: |
           # Poll the health endpoint until it responds with 200
           # -L follows redirects (fixes the 301 issue) and we use the trailing slash /api/
-          timeout 90s bash -c 'until curl -svL http://localhost/api/ | grep "Welcome"; do sleep 2; done'
+          timeout 90s bash -c 'until curl -svL http://localhost/api/ | grep "Welcome"; do sleep 1; done'
 
       - name: Run integration tests
         run: |
