@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: snake-arena-app
+    runtime: docker
+    plan: free # You can upgrade later if needed
+    region: oregon # Or your preferred region
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: snake-db
+          property: connectionString
+      # Add any other env vars here (e.g., JWT_SECRET if you add it later)
+
+databases:
+  - name: snake-db
+    plan: free # Render's free Postgres expires after 90 days, keep that in mind
+    region: oregon
