@@ -2,16 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
-    branches: [main]
+    branches: ["**"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      # We don't need a DB service here because we switched to SQLite
 
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +39,8 @@ jobs:
       - name: Wait for server to be ready
         run: |
           # Poll the health endpoint until it responds with 200
-          timeout 60s bash -c 'until curl -s http://localhost/api | grep "Welcome"; do sleep 2; done'
+          # -L follows redirects (fixes the 301 issue) and we use the trailing slash /api/
+          timeout 90s bash -c 'until curl -svL http://localhost/api/ | grep "Welcome"; do sleep 2; done'
 
       - name: Run integration tests
         run: |

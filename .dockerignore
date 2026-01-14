@@ -1,0 +1,11 @@
+.git
+.gitignore
+**/node_modules
+**/dist
+**/.venv
+**/__pycache__
+**/*.pyc
+backend/snake.db
+backend/snake.db-shm
+backend/snake.db-wal
+.pytest_cache
