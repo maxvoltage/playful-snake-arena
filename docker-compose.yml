@@ -1,27 +1,10 @@
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: snake-db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-snake_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-snake_password}
-      POSTGRES_DB: ${POSTGRES_DB:-snake_arena}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - snake-network
-
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: snake-app
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-snake_user}:${POSTGRES_PASSWORD:-snake_password}@db:5432/${POSTGRES_DB:-snake_arena}
-    depends_on:
-      - db
+    # No DATABASE_URL provided, defaults to SQLite inside the container
     ports:
       - "80:80"
     networks:
@@ -30,6 +13,3 @@ services:
 networks:
   snake-network:
     driver: bridge
-
-volumes:
-  postgres_data:
