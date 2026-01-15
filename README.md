@@ -8,6 +8,8 @@ Welcome to Playful Snake Arena, a retro-styled competitive Snake game with a mod
 - **Database**: PostgreSQL
 - **Infrastructure**: Docker Compose
 
+See the [Architecture](./architecture.md) for details.
+
 ## Quick Start (Docker)
 
 The easiest way to run the entire stack is using Docker Compose.
